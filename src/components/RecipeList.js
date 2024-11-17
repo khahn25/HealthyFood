@@ -1,26 +1,35 @@
 import React, { useEffect } from 'react';
 
-function RecipeList({ receipe, favoritedItems, onItemClick, onFavorite, onSearch, childProp }) {
+function RecipeList({ receipe, favoritedItems, onItemClick, onFavorite, onSearch, childProp, loading }) {
   useEffect(() => {
     onSearch(childProp);
   }, [childProp]);
 
-  
-
   return (
-    <div className='recipe'>
-      {receipe.length > 0 && childProp ? <h1>Food Recommendation</h1> : <h1>Search results:</h1>}
+    <div className="recipe">
+      {loading ? (
+        <h1>Loading...</h1>
+      ) : receipe.length > 0 && childProp ? (
+        <h1>Food Recommendation</h1>
+      ) : (
+        <h1>Search results:</h1>
+      )}
       <div className="data-grid">
-        {receipe.map((recipe) => (
-          <div key={recipe.uri} className="grid-item" onClick={() => onItemClick(recipe)}>
-            {/* <img src={recipe.image} alt="" /> */}
-            <p>{recipe.title}</p>
-            {/* <button
-              className={`heart-button ${favoritedItems.some((item) => item.uri === recipe.uri) ? 'active' : ''}`}
-              onClick={(e) => onFavorite(e, recipe)}
-            >
-              {favoritedItems.some((item) => item.uri === recipe.uri) ? '❤️' : '🤍'}
-            </button> */}
+        {receipe.map((recipe, index) => (
+          <div key={index} className="grid-item" onClick={() => onItemClick(recipe)}>
+            <h3>{recipe.title}</h3>
+            <p><strong>Ingredients:</strong></p>
+            <ul>
+              {recipe.ingredients.map((ingredient, idx) => (
+                <li key={idx}>{ingredient}</li>
+              ))}
+            </ul>
+            <p><strong>Directions:</strong></p>
+            <ol>
+              {recipe.directions.map((direction, idx) => (
+                <li key={idx}>{direction}</li>
+              ))}
+            </ol>
           </div>
         ))}
       </div>

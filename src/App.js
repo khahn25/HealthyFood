@@ -31,7 +31,7 @@ function App() {
   };
 
   const getReceipe = (query) => {
-    fetch('http://localhost:5000/api/find_similar', {
+    fetch('http://192.168.1.8:5000/api/find_similar', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -40,10 +40,17 @@ function App() {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data && data.title) {
-          setReceipe([data]); // Set the response as the recipe list
+        console.log('API Response:', data); // Kiểm tra dữ liệu trả về
+        if (data && data.length > 0 && data[0].title) {
+          const recipes = data[0].title.map((title, index) => ({
+            title,
+            ingredients: JSON.parse(data[0].metadata[index].ingredients.replace(/'/g, '"')),
+            directions: JSON.parse(data[0].metadata[index].directions.replace(/'/g, '"')),
+            ner: JSON.parse(data[0].metadata[index].NER.replace(/'/g, '"')),
+          }));
+          setReceipe(recipes); // Cập nhật kết quả vào state
         } else {
-          setReceipe([]); // Clear results if no recipe found
+          setReceipe([]); // Nếu không có dữ liệu, xóa kết quả
         }
       })
       .catch((error) => {
@@ -51,25 +58,8 @@ function App() {
       });
   };
 
-  const parseIngredientsAndDirections = (str) => {
-    try {
-      // Replace single quotes with double quotes to make it valid JSON
-      return JSON.parse(str.replace(/'/g, '"'));
-    } catch (error) {
-      console.error('Error parsing ingredients or directions:', error);
-      return [];
-    }
-  };
-
   const handleItemClick = (recipe) => {
-    setSelectedItem({
-      ...recipe,
-      metadata: {
-        ...recipe.metadata,
-        ingredients: parseIngredientsAndDirections(recipe.metadata[0].ingredients),
-        directions: parseIngredientsAndDirections(recipe.metadata[0].directions),
-      },
-    });
+    setSelectedItem(recipe);
   };
 
   const closePopup = () => {
@@ -116,13 +106,13 @@ function App() {
               &times;
             </span>
             <img src={selectedItem.image} alt="" />
-            <div className='contentss'>
+            <div className="contentss">
               <h3>Recipe Details</h3>
               <p>{selectedItem.title}</p>
               {/* Ensure ingredients exist before rendering */}
-              {selectedItem.metadata && selectedItem.metadata.ingredients && selectedItem.metadata.ingredients.length > 0 ? (
+              {selectedItem.ingredients && selectedItem.ingredients.length > 0 ? (
                 <ol>
-                  {selectedItem.metadata.ingredients.map((ingredient, index) => (
+                  {selectedItem.ingredients.map((ingredient, index) => (
                     <li key={index}>{ingredient}</li>
                   ))}
                 </ol>
@@ -130,9 +120,9 @@ function App() {
                 <p>No ingredients available</p>
               )}
               {/* Ensure directions exist before rendering */}
-              {selectedItem.metadata && selectedItem.metadata.directions && selectedItem.metadata.directions.length > 0 ? (
+              {selectedItem.directions && selectedItem.directions.length > 0 ? (
                 <ol>
-                  {selectedItem.metadata.directions.map((direction, index) => (
+                  {selectedItem.directions.map((direction, index) => (
                     <li key={index}>{direction}</li>
                   ))}
                 </ol>
