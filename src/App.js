@@ -9,6 +9,7 @@ function App() {
   const [receipe, setReceipe] = useState([]);
   const [storedItems, setStoredItems] = useState([]);
   const [favoritedItems, setFavoritedItems] = useState([]);
+  const [loading, setLoading] = useState(false); // Trạng thái tải dữ liệu
 
   useEffect(() => {
     // Fetch stored items from local storage when the component mounts
@@ -30,7 +31,17 @@ function App() {
     setDummy(newValue);
   };
 
+  const parseSafe = (jsonString) => {
+    try {
+      return JSON.parse(jsonString.replace(/'/g, '"')); // Thay dấu nháy đơn thành nháy kép
+    } catch (error) {
+      console.error('Error parsing JSON:', error);
+      return null; // Trả về null nếu có lỗi
+    }
+  };
+
   const getReceipe = (query) => {
+    setLoading(true); // Bắt đầu tải dữ liệu
     fetch('http://192.168.1.8:5000/api/find_similar', {
       method: 'POST',
       headers: {
@@ -40,20 +51,35 @@ function App() {
     })
       .then((response) => response.json())
       .then((data) => {
+        setLoading(false); // Dừng tải dữ liệu
         console.log('API Response:', data); // Kiểm tra dữ liệu trả về
         if (data && data.length > 0 && data[0].title) {
-          const recipes = data[0].title.map((title, index) => ({
-            title,
-            ingredients: JSON.parse(data[0].metadata[index].ingredients.replace(/'/g, '"')),
-            directions: JSON.parse(data[0].metadata[index].directions.replace(/'/g, '"')),
-            ner: JSON.parse(data[0].metadata[index].NER.replace(/'/g, '"')),
-          }));
+          const recipes = data[0].title.map((title, index) => {
+            const ingredients = parseSafe(data[0].metadata[index].ingredients);
+            const directions = parseSafe(data[0].metadata[index].directions);
+            const ner = parseSafe(data[0].metadata[index].NER);
+
+            // Chỉ tiếp tục nếu dữ liệu hợp lệ
+            if (ingredients && directions && ner) {
+              return {
+                title,
+                ingredients,
+                directions,
+                ner,
+              };
+            } else {
+              console.error('Invalid data structure at index', index);
+              return null; // Trả về null nếu dữ liệu không hợp lệ
+            }
+          }).filter((recipe) => recipe !== null); // Loại bỏ các phần tử null
+
           setReceipe(recipes); // Cập nhật kết quả vào state
         } else {
           setReceipe([]); // Nếu không có dữ liệu, xóa kết quả
         }
       })
       .catch((error) => {
+        setLoading(false); // Dừng tải dữ liệu khi gặp lỗi
         console.error('Error fetching recipe:', error);
       });
   };
@@ -97,42 +123,50 @@ function App() {
         onItemClick={handleItemClick}
         onFavorite={favorite}
         childProp={dummy}
+        loading={loading} // Truyền trạng thái tải dữ liệu vào RecipeList
       />
 
-      {selectedItem && (
-        <div className="popup">
-          <div className="popup-content">
-            <span className="close" onClick={closePopup}>
-              &times;
-            </span>
-            <img src={selectedItem.image} alt="" />
-            <div className="contentss">
-              <h3>Recipe Details</h3>
-              <p>{selectedItem.title}</p>
-              {/* Ensure ingredients exist before rendering */}
-              {selectedItem.ingredients && selectedItem.ingredients.length > 0 ? (
-                <ol>
-                  {selectedItem.ingredients.map((ingredient, index) => (
-                    <li key={index}>{ingredient}</li>
-                  ))}
-                </ol>
-              ) : (
-                <p>No ingredients available</p>
-              )}
-              {/* Ensure directions exist before rendering */}
-              {selectedItem.directions && selectedItem.directions.length > 0 ? (
-                <ol>
-                  {selectedItem.directions.map((direction, index) => (
-                    <li key={index}>{direction}</li>
-                  ))}
-                </ol>
-              ) : (
-                <p>No directions available</p>
-              )}
-            </div>
+{selectedItem && (
+  <div className="popup">
+    <div className="popup-content">
+      <span className="close" onClick={closePopup}>
+        &times;
+      </span>
+      <img src={selectedItem.image} alt="" />
+      <div className="contentss">
+        <h3>Recipe Details</h3>
+        <p>{selectedItem.title}</p>
+        <div className="details-container">
+          <div className="column">
+            <h4>Ingredients</h4>
+            {selectedItem.ingredients && selectedItem.ingredients.length > 0 ? (
+              <ol>
+                {selectedItem.ingredients.map((ingredient, index) => (
+                  <li key={index}>{ingredient}</li>
+                ))}
+              </ol>
+            ) : (
+              <p>No ingredients available</p>
+            )}
+          </div>
+          <div className="column">
+            <h4>Directions</h4>
+            {selectedItem.directions && selectedItem.directions.length > 0 ? (
+              <ol>
+                {selectedItem.directions.map((direction, index) => (
+                  <li key={index}>{direction}</li>
+                ))}
+              </ol>
+            ) : (
+              <p>No directions available</p>
+            )}
           </div>
         </div>
-      )}
+      </div>
+    </div>
+  </div>
+)}
+
     </>
   );
 }

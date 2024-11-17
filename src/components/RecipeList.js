@@ -2,7 +2,9 @@ import React, { useEffect } from 'react';
 
 function RecipeList({ receipe, favoritedItems, onItemClick, onFavorite, onSearch, childProp, loading }) {
   useEffect(() => {
-    onSearch(childProp);
+    if (childProp) {
+      onSearch(childProp);
+    }
   }, [childProp]);
 
   return (
@@ -15,6 +17,7 @@ function RecipeList({ receipe, favoritedItems, onItemClick, onFavorite, onSearch
         <h1>Search results:</h1>
       )}
       <div className="data-grid">
+        {receipe.length === 0 && !loading && <p>No recipes found for the given query.</p>}
         {receipe.map((recipe, index) => (
           <div key={index} className="grid-item" onClick={() => onItemClick(recipe)}>
             <h3>{recipe.title}</h3>
@@ -30,6 +33,7 @@ function RecipeList({ receipe, favoritedItems, onItemClick, onFavorite, onSearch
                 <li key={idx}>{direction}</li>
               ))}
             </ol>
+            {/* <button onClick={(e) => onFavorite(e, recipe)}>Favorite</button> */}
           </div>
         ))}
       </div>
