@@ -13,7 +13,9 @@ function Search({ onSearch, updateParentState }) {
   };
 
   const handleTitleClick = () => {
-    updateParentState('healthy');
+    setQuery(''); // Reset input tìm kiếm
+    updateParentState('healthy'); // Đặt lại trạng thái của ứng dụng
+    onSearch('healthy'); // Gửi yêu cầu tìm kiếm mặc định
   };
 
   return (
