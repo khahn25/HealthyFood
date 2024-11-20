@@ -127,8 +127,8 @@
 
 .contentss {
   position: relative;
-  top: 10%;
-  right: -5%;
+  /* top: 3%; */
+  right: -1%;
 }
 
 .bottom-fav button{
@@ -317,8 +317,8 @@
 .details-container {
   display: flex;
   justify-content: space-between;
-  gap: 20px; /* Khoảng cách giữa hai cột */
-  width: 90%;
+  gap: 10px; /* Khoảng cách giữa hai cột */
+  width: 100%;
 }
 
 .column {
@@ -344,8 +344,8 @@ ol li {
 /* Đường gạch ngăn cách giữa Ingredients và Directions */
 .column:not(:last-child) {
   border-right: 2px solid #f7eeee; /* Đường gạch ngăn cách với màu sáng */
-  padding-right: 65px;
-  margin-right: 20px;
+  padding-right: 10px;
+  margin-right: 10px;
 }
 
 .popup {
