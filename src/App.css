@@ -18,7 +18,7 @@
 
 /* Style for each grid item */
 .grid-item {
-  background-color: #2b9754; /* Darker background color for grid items */
+  background-color: #073c55; /* Darker background color for grid items */
   color: #fff;
   padding: 20px;
   box-shadow: 20px rgba(0, 0, 0, 0.5);
@@ -44,7 +44,7 @@
 
 /* Style for the popup content */
 .popup-content {
-  background-color: #174d25;
+  background-color: #073c55;
   display: flex;
   color: #fff;
   padding: 10px; /* Adjust padding as needed */
@@ -70,7 +70,7 @@
 /* Search.css */
 
 .filter {
-  background-color: #2b9754;
+  background-color:#073c55;
   padding-top: 20px;
   color: #f3e9e9;
   width: 100vw;
@@ -362,7 +362,7 @@ ol li {
 }
 
 .popup-content {
-  background-color:  #245e2e; /* Màu nền của nội dung popup */
+  background-color:  #073c55; /* Màu nền của nội dung popup */
 }
 
 .close {

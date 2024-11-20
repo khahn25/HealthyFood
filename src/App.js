@@ -42,7 +42,7 @@ function App() {
 
   const getReceipe = (query) => {
     setLoading(true); // Bắt đầu tải dữ liệu
-    fetch('http://192.168.1.30:5000/api/find_similar', {
+    fetch('http://192.168.1.9:5000/api/find_similar', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
